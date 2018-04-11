@@ -19,16 +19,16 @@ SHA=$(git rev-parse --verify HEAD)
     git checkout $TARGET_BRANCH
 )
 
-echo "Removing the current docs for master"
+# Remove the current doc for master
 rm -rf out/master/ || exit 0
 
-echo "Making the docs for master"
+# Make the doc for master
 mkdir out/master/
 cp util/gh-pages/index.html out/master
 python ./util/export.py out/master/lints.json
 
+# Save the doc for the current tag and point current/ to it
 if [ -n "$TRAVIS_TAG" ]; then
-    echo "Save the doc for the current tag ($TRAVIS_TAG) and point current/ to it"
     cp -r out/master "out/$TRAVIS_TAG"
     rm -f out/current
     ln -s "$TRAVIS_TAG" out/current

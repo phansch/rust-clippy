@@ -166,7 +166,7 @@ pub fn lit_to_constant<'tcx>(lit: &LitKind, ty: Ty<'tcx>) -> Constant {
 pub fn constant(lcx: &LateContext, e: &Expr) -> Option<(Constant, bool)> {
     let mut cx = ConstEvalLateContext {
         tcx: lcx.tcx,
-        tables: lcx.tables,
+        tables: lcx.txc.body_tables(e.id),
         param_env: lcx.param_env,
         needed_resolution: false,
         substs: lcx.tcx.intern_substs(&[]),

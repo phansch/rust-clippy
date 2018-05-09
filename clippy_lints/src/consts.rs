@@ -172,7 +172,8 @@ pub fn constant(lcx: &LateContext, e: &Expr) -> Option<(Constant, bool)> {
         substs: lcx.tcx.intern_substs(&[]),
     };
     println!("e: {:?}", e);
-    println!("cx: {:?}", cx);
+    println!("cx.needed_resolution: {:?}", cx.needed_resolution);
+    println!("cx.expr(e): {:?}", cx.expr(e));
     cx.expr(e).map(|cst| (cst, cx.needed_resolution))
 }
 

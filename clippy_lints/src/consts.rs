@@ -207,6 +207,7 @@ impl<'c, 'cc> ConstEvalLateContext<'c, 'cc> {
             ExprIf(ref cond, ref then, ref otherwise) => self.ifthenelse(cond, then, otherwise),
             ExprLit(ref lit) => {
                 println!("here?");
+                println!("this? {:?}", self.tables.expr_ty(e));
                 Some(lit_to_constant(&lit.node, self.tables.expr_ty(e)))
             },
             ExprArray(ref vec) => self.multi(vec).map(Constant::Vec),

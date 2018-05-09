@@ -171,7 +171,6 @@ pub fn constant(lcx: &LateContext, e: &Expr) -> Option<(Constant, bool)> {
         needed_resolution: false,
         substs: lcx.tcx.intern_substs(&[]),
     };
-    println!("e: {:?}", e);
     cx.expr(e).map(|cst| (cst, cx.needed_resolution))
 }
 
@@ -201,11 +200,15 @@ pub struct ConstEvalLateContext<'a, 'tcx: 'a> {
 impl<'c, 'cc> ConstEvalLateContext<'c, 'cc> {
     /// simple constant folding: Insert an expression, get a constant or none.
     pub fn expr(&mut self, e: &Expr) -> Option<Constant> {
+        println!("e: {:?}", e.node);
         match e.node {
             ExprPath(ref qpath) => self.fetch_path(qpath, e.hir_id),
             ExprBlock(ref block) => self.block(block),
             ExprIf(ref cond, ref then, ref otherwise) => self.ifthenelse(cond, then, otherwise),
-            ExprLit(ref lit) => Some(lit_to_constant(&lit.node, self.tables.expr_ty(e))),
+            ExprLit(ref lit) => {
+                println!("here?");
+                Some(lit_to_constant(&lit.node, self.tables.expr_ty(e)))
+            },
             ExprArray(ref vec) => self.multi(vec).map(Constant::Vec),
             ExprTup(ref tup) => self.multi(tup).map(Constant::Tuple),
             ExprRepeat(ref value, _) => {

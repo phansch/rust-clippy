@@ -317,11 +317,9 @@ impl<'a, 'tcx: 'a> SpanlessHash<'a, 'tcx> {
 
     #[allow(many_single_char_names)]
     pub fn hash_expr(&mut self, e: &Expr) {
-        println!("worsk before constant_simple");
         if let Some(e) = constant_simple(self.cx, e) {
             return e.hash(&mut self.s);
         }
-        println!("still works after constant_simple");
 
         match e.node {
             ExprAddrOf(m, ref e) => {

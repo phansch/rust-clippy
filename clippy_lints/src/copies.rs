@@ -152,6 +152,7 @@ fn lint_same_then_else(cx: &LateContext, blocks: &[&Block]) {
 fn lint_same_cond(cx: &LateContext, conds: &[&Expr]) {
     let hash: &Fn(&&Expr) -> u64 = &|expr| -> u64 {
         let mut h = SpanlessHash::new(cx);
+        println!("in ifs_same_cond");
         h.hash_expr(expr);
         h.finish()
     };
@@ -175,6 +176,7 @@ fn lint_match_arms(cx: &LateContext, expr: &Expr) {
     if let ExprMatch(_, ref arms, MatchSource::Normal) = expr.node {
         let hash = |&(_, arm): &(usize, &Arm)| -> u64 {
             let mut h = SpanlessHash::new(cx);
+            println!("in match_same_arms");
             h.hash_expr(&arm.body);
             h.finish()
         };

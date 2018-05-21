@@ -52,18 +52,21 @@ impl LintPass for EqOp {
 
 impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
     fn check_expr(&mut self, cx: &LateContext<'a, 'tcx>, e: &'tcx Expr) {
+        println!(":55");
         if let ExprBinary(ref op, ref left, ref right) = e.node {
+            println!(":57");
             if is_valid_operator(op) && SpanlessEq::new(cx).ignore_fn().eq_expr(left, right) && !in_macro(e.span) {
-                println!(":57");
+                println!(":59");
                 span_lint(
                     cx,
                     EQ_OP,
                     e.span,
                     &format!("equal expressions as operands to `{}`", op.node.as_str()),
                 );
-                println!(":64");
+                println!(":66");
                 return;
             }
+            println!(":69");
             let (trait_id, requires_ref) = match op.node {
                 BiAdd => (cx.tcx.lang_items().add_trait(), false),
                 BiSub => (cx.tcx.lang_items().sub_trait(), false),
@@ -80,6 +83,7 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                 BiNe | BiEq => (cx.tcx.lang_items().eq_trait(), true),
                 BiLt | BiLe | BiGe | BiGt => (cx.tcx.lang_items().ord_trait(), true),
             };
+            println!(":86");
             if let Some(trait_id) = trait_id {
                 #[allow(match_same_arms)]
                 match (&left.node, &right.node) {
@@ -87,14 +91,14 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                     (&ExprLit(..), _) | (_, &ExprLit(..)) => {},
                     // &foo == &bar
                     (&ExprAddrOf(_, ref l), &ExprAddrOf(_, ref r)) => {
+                        println!(":94");
                         let lty = cx.tables.expr_ty(l);
                         let rty = cx.tables.expr_ty(r);
                         let lcpy = is_copy(cx, lty);
                         let rcpy = is_copy(cx, rty);
                         // either operator autorefs or both args are copyable
                         if (requires_ref || (lcpy && rcpy)) && implements_trait(cx, lty, trait_id, &[rty]) {
-                            println!(":96");
-                            println!("e.span: {:?}", e.span);
+                            println!(":101");
                             span_lint_and_then(
                                 cx,
                                 OP_REF,
@@ -103,16 +107,14 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                                 |db| {
                                     let lsnip = snippet(cx, l.span, "...").to_string();
                                     let rsnip = snippet(cx, r.span, "...").to_string();
-                                    println!("before multispan_sugg");
                                     multispan_sugg(
                                         db,
                                         "use the values directly".to_string(),
                                         vec![(left.span, lsnip), (right.span, rsnip)],
                                     );
-                                    println!("after multispan_sugg");
                                 },
                             );
-                            println!(":112");
+                            println!(":117");
                         } else if lcpy && !rcpy && implements_trait(cx, lty, trait_id, &[cx.tables.expr_ty(right)]) {
                             println!(":114");
                             span_lint_and_then(cx, OP_REF, e.span, "needlessly taken reference of left operand", |db| {

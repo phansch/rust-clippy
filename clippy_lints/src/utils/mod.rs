@@ -601,6 +601,9 @@ pub fn span_lint_and_then<'a, 'tcx: 'a, T: LintContext<'tcx>, F>(
 ) where
     F: for<'b> FnOnce(&mut DiagnosticBuilder<'b>),
 {
+    println!("lint: {:?}", lint);
+    println!("span: {:?}", span);
+    println!("msg: {:?}", msg);
     let mut db = DiagnosticWrapper(cx.struct_span_lint(lint, sp, msg));
     f(&mut db.0);
     db.docs_link(lint);

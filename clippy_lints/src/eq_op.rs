@@ -103,6 +103,7 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                                 |db| {
                                     let lsnip = snippet(cx, l.span, "...").to_string();
                                     let rsnip = snippet(cx, r.span, "...").to_string();
+                                    println!("before multispan_sugg");
                                     multispan_sugg(
                                         db,
                                         "use the values directly".to_string(),

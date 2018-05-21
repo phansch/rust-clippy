@@ -121,9 +121,7 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                                 let lsnip = snippet(cx, l.span, "...").to_string();
                                 db.span_suggestion(left.span, "use the left value directly", lsnip);
                             });
-                            println!(":119");
                         } else if !lcpy && rcpy && implements_trait(cx, cx.tables.expr_ty(left), trait_id, &[rty]) {
-                            println!(":121");
                             span_lint_and_then(
                                 cx,
                                 OP_REF,
@@ -134,20 +132,21 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                                     db.span_suggestion(right.span, "use the right value directly", rsnip);
                                 },
                             );
-                            println!(":132");
                         }
                     },
                     // &foo == bar
                     (&ExprAddrOf(_, ref l), _) => {
+                        println!(":139");
                         let lty = cx.tables.expr_ty(l);
                         let lcpy = is_copy(cx, lty);
+                        println!(":142");
                         if (requires_ref || lcpy) && implements_trait(cx, lty, trait_id, &[cx.tables.expr_ty(right)]) {
-                            println!(":140");
+                            println!(":144");
                             span_lint_and_then(cx, OP_REF, e.span, "needlessly taken reference of left operand", |db| {
                                 let lsnip = snippet(cx, l.span, "...").to_string();
                                 db.span_suggestion(left.span, "use the left value directly", lsnip);
                             });
-                            println!(":145");
+                            println!(":149");
                         }
                     },
                     // foo == &bar

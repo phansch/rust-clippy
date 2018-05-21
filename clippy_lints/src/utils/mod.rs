@@ -298,6 +298,7 @@ pub fn implements_trait<'a, 'tcx>(
     ty_params: &[Ty<'tcx>],
 ) -> bool {
     let ty = cx.tcx.erase_regions(&ty);
+    println!(":301");
     let obligation =
         cx.tcx
             .predicate_for_trait_def(cx.param_env, traits::ObligationCause::dummy(), trait_id, 0, ty, ty_params);

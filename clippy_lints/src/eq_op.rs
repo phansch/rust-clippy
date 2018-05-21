@@ -109,6 +109,7 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                                         "use the values directly".to_string(),
                                         vec![(left.span, lsnip), (right.span, rsnip)],
                                     );
+                                    println!("after multispan_sugg");
                                 },
                             );
                             println!(":112");

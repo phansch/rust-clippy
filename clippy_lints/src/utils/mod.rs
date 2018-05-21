@@ -605,6 +605,7 @@ pub fn span_lint_and_then<'a, 'tcx: 'a, T: LintContext<'tcx>, F>(
     println!("span: {:?}", sp);
     println!("msg: {:?}", msg);
     let mut db = DiagnosticWrapper(cx.struct_span_lint(lint, sp, msg));
+    println!("db.0: {:?}", db.0);
     f(&mut db.0);
     db.docs_link(lint);
 }

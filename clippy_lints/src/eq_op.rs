@@ -94,6 +94,7 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for EqOp {
                         // either operator autorefs or both args are copyable
                         if (requires_ref || (lcpy && rcpy)) && implements_trait(cx, lty, trait_id, &[rty]) {
                             println!(":96");
+                            println!("e.span: {:?}", e.span);
                             span_lint_and_then(
                                 cx,
                                 OP_REF,

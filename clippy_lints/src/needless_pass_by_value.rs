@@ -171,6 +171,8 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for NeedlessPassByValue {
                 (
                     preds.iter().any(|t| t.def_id() == borrow_trait),
                     !preds.is_empty() && preds.iter().all(|t| {
+                        println!("span: {:?}", span);
+                        // TODO: Either here
                         implements_trait(
                             cx,
                             cx.tcx.mk_imm_ref(&RegionKind::ReErased, ty),
@@ -185,6 +187,8 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for NeedlessPassByValue {
                 )
             };
 
+            // TODO: Or in this if-chain
+            println!("span_before_if_chain: {:?}", span);
             if_chain! {
                 if !is_self(arg);
                 if !ty.is_mutable_pointer();

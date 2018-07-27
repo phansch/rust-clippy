@@ -487,6 +487,8 @@ impl<'a, 'tcx> LateLintPass<'a, 'tcx> for Pass {
             {
                 let iter_expr = &method_args[0];
                 let lhs_constructor = last_path_segment(qpath);
+                println!("match_expr.span: {:?}", match_expr.span);
+                println!("pat_args: {:?}", pat_args);
                 if method_path.ident.name == "next" && match_trait_method(cx, match_expr, &paths::ITERATOR)
                     && lhs_constructor.ident.name == "Some" && !is_refutable(cx, &pat_args[0])
                     && !is_iterator_used_after_while_let(cx, iter_expr)

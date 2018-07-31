@@ -66,6 +66,15 @@ impl Lint {
     pub fn by_lint_group(lints: &[Self]) -> HashMap<String, Vec<Self>> {
         lints.iter().map(|lint| (lint.group.to_string(), lint.clone())).into_group_map()
     }
+
+    /// Generates `pub mod module_name` for the lints in the given `group`
+    pub fn gen_pub_mod_for_group(lints: &[Lint]) -> Vec<String> {
+        lints.into_iter().map(|l| format!("pub mod {};", l.module)).collect::<Vec<String>>()
+    }
+
+    pub fn gen_lint_group(lints: &[Lint]) -> Vec<String> {
+        lints.into_iter().map(|l| format!("        {}::{},", l.module, l.name.to_uppercase())).collect::<Vec<String>>()
+    }
 }
 
 /// Gathers all files in `src/clippy_lints` and gathers all lints inside
@@ -184,6 +193,19 @@ pub fn replace_region_in_text<F>(text: &str, start: &str, end: &str, replace_sta
     new_lines.join("\n")
 }
 
+pub fn clippy_version_from_toml() -> String {
+    let mut file = fs::File::open("../Cargo.toml").unwrap();
+    let mut content = String::new();
+    file.read_to_string(&mut content).unwrap();
+    let version_line = content.lines().find(|l| l.starts_with("version ="));
+    if let Some(version_line) = version_line {
+        let split = version_line.split(" ").collect::<Vec<&str>>();
+        split[2].trim_matches('"').to_string()
+    } else {
+        panic!("Error: version not found in Cargo.toml!");
+    }
+}
+
 #[test]
 fn test_parse_contents() {
     let result: Vec<Lint> = parse_contents(
@@ -220,6 +242,44 @@ declare_deprecated_lint! {
             "module_name"
         ),
     ];
+    assert_eq!(expected, result);
+}
+
+
+#[test]
+fn test_replace_region() {
+    let text = r#"
+abc
+123
+789
+def
+ghi"#;
+    let expected = r#"
+abc
+hello world
+def
+ghi"#;
+    let result = replace_region_in_text(text, r#"^\s*abc$"#, r#"^\s*def"#, false, || {
+        vec!["hello world".to_string()]
+    });
+    assert_eq!(expected, result);
+}
+
+#[test]
+fn test_replace_region_with_start() {
+    let text = r#"
+abc
+123
+789
+def
+ghi"#;
+    let expected = r#"
+hello world
+def
+ghi"#;
+    let result = replace_region_in_text(text, r#"^\s*abc$"#, r#"^\s*def"#, true, || {
+        vec!["hello world".to_string()]
+    });
     assert_eq!(expected, result);
 }
 
@@ -290,4 +350,30 @@ fn test_by_lint_group() {
         Lint::new("should_assert_eq2", "group2", "abc", None, "module_name")
     ]);
     assert_eq!(expected, Lint::by_lint_group(&lints));
+}
+
+#[test]
+fn test_gen_pub_mod_for_group() {
+    let lints = vec![
+        Lint::new("should_assert_eq", "Deprecated", "abc", Some("Reason"), "abc"),
+        Lint::new("should_assert_eq2", "Not Deprecated", "abc", None, "module_name"),
+    ];
+    let expected = vec![
+        "pub mod abc;".to_string(),
+        "pub mod module_name;".to_string(),
+    ];
+    assert_eq!(expected, Lint::gen_pub_mod_for_group(&lints));
+}
+
+#[test]
+fn test_gen_lint_group() {
+    let lints = vec![
+        Lint::new("should_assert_eq", "Deprecated", "abc", Some("Reason"), "abc"),
+        Lint::new("should_assert_eq2", "Not Deprecated", "abc", None, "module_name"),
+    ];;
+    let expected = vec![
+        "        abc::SHOULD_ASSERT_EQ,".to_string(),
+        "        module_name::SHOULD_ASSERT_EQ2,".to_string()
+    ];
+    assert_eq!(expected, Lint::gen_lint_group(&lints));
 }

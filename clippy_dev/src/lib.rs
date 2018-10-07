@@ -72,6 +72,7 @@ impl Lint {
         lints.into_iter().map(|l| format!("pub mod {};", l.module)).collect::<Vec<String>>()
     }
 
+    /// Generates lint group (list of all lints in the form `module::NAME`).
     pub fn gen_lint_group(lints: &[Self]) -> Vec<String> {
         lints.into_iter().map(|l| format!("        {}::{},", l.module, l.name.to_uppercase())).collect::<Vec<String>>()
     }

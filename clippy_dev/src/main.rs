@@ -83,8 +83,8 @@ fn update_lints() {
 
 fn update_lints() {
     let lint_list = gather_all().collect::<Vec<Lint>>();
-    let active_lints = Lint::active_lints(&lint_list);
-    let lint_count = active_lints.count();
+    let active_lints: Vec<Lint> = Lint::active_lints(&lint_list).map(|l| l.clone()).collect();
+    let lint_count = active_lints.len();
     let clippy_version = clippy_version_from_toml();
 
     replace_region_in_file(
@@ -139,7 +139,7 @@ fn update_lints() {
         "end lints modules",
         false,
         || {
-            Lint::gen_pub_mod_for_group(&active_lints)
+            Lint::gen_pub_mod_for_group(&active_lints[..])
         }
     );
     replace_region_in_file(

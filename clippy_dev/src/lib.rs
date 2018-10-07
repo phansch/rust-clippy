@@ -68,11 +68,11 @@ impl Lint {
     }
 
     /// Generates `pub mod module_name` for the lints in the given `group`
-    pub fn gen_pub_mod_for_group(lints: &[Lint]) -> Vec<String> {
+    pub fn gen_pub_mod_for_group(lints: &[Self]) -> Vec<String> {
         lints.into_iter().map(|l| format!("pub mod {};", l.module)).collect::<Vec<String>>()
     }
 
-    pub fn gen_lint_group(lints: &[Lint]) -> Vec<String> {
+    pub fn gen_lint_group(lints: &[Self]) -> Vec<String> {
         lints.into_iter().map(|l| format!("        {}::{},", l.module, l.name.to_uppercase())).collect::<Vec<String>>()
     }
 }

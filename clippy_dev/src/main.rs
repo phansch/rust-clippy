@@ -83,8 +83,9 @@ fn update_lints() {
 
 fn update_lints() {
     let lint_list = gather_all().collect::<Vec<Lint>>();
-    let active_lints: Vec<Lint> = Lint::active_lints(&lint_list).map(|l| l.clone()).collect();
-    let lint_count = active_lints.len();
+    let active_lints = Lint::active_lints(lint_list.clone().into_iter()).map(|l| l.clone());
+    let user_facing_lints: Vec<Lint> = Lint::without_internal_lints(active_lints).collect();
+    let lint_count = user_facing_lints.len();
     let clippy_version = clippy_version_from_toml();
 
     replace_region_in_file(

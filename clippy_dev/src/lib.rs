@@ -62,6 +62,11 @@ impl Lint {
         lints.filter(|l| l.deprecation.is_none() && !l.group.starts_with("internal"))
     }
 
+    /// Returns all non-internal lints
+    pub fn without_internal_lints(lints: impl Iterator<Item=Self>) -> impl Iterator<Item=Self> {
+        lints.filter(|l| l.group != "internal")
+    }
+
     /// Returns the lints in a HashMap, grouped by the different lint groups
     pub fn by_lint_group(lints: &[Self]) -> HashMap<String, Vec<Self>> {
         lints.iter().map(|lint| (lint.group.to_string(), lint.clone())).into_group_map()

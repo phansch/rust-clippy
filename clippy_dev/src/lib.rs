@@ -73,8 +73,17 @@ impl Lint {
     }
 
     /// Generates `pub mod module_name` for the lints in the given `group`
+    ///
+    /// Should not include internal lints.
     pub fn gen_pub_mod_for_group(lints: &[Self]) -> Vec<String> {
-        lints.into_iter().map(|l| format!("pub mod {};", l.module)).collect::<Vec<String>>()
+        let mut pub_mods = lints
+            .into_iter()
+            .filter(|l| !l.group.starts_with("internal"))
+            .map(|l| format!("pub mod {};", l.module))
+            .unique()
+            .collect::<Vec<String>>();
+        pub_mods.sort();
+        pub_mods
     }
 
     /// Generates lint group (list of all lints in the form `module::NAME`).
@@ -361,8 +370,10 @@ fn test_by_lint_group() {
 #[test]
 fn test_gen_pub_mod_for_group() {
     let lints = vec![
-        Lint::new("should_assert_eq", "Deprecated", "abc", Some("Reason"), "abc"),
-        Lint::new("should_assert_eq2", "Not Deprecated", "abc", None, "module_name"),
+        Lint::new("should_assert_eq", "Deprecated", "text", Some("Reason"), "abc"),
+        Lint::new("should_assert_eq2", "Not Deprecated", "text", None, "module_name"),
+        Lint::new("should_assert_eq3", "Not Deprecated", "text", None, "module_name"),
+        Lint::new("should_assert_eq3", "internal", "text", None, "internal_lints"),
     ];
     let expected = vec![
         "pub mod abc;".to_string(),

@@ -299,43 +299,6 @@ ghi"#;
 }
 
 #[test]
-fn test_replace_region() {
-    let text = r#"
-abc
-123
-789
-def
-ghi"#;
-    let expected = r#"
-abc
-hello world
-def
-ghi"#;
-    let result = replace_region_in_text(text, r#"^\s*abc$"#, r#"^\s*def"#, false, || {
-        vec!["hello world".to_string()]
-    });
-    assert_eq!(expected, result);
-}
-
-#[test]
-fn test_replace_region_with_start() {
-    let text = r#"
-abc
-123
-789
-def
-ghi"#;
-    let expected = r#"
-hello world
-def
-ghi"#;
-    let result = replace_region_in_text(text, r#"^\s*abc$"#, r#"^\s*def"#, true, || {
-        vec!["hello world".to_string()]
-    });
-    assert_eq!(expected, result);
-}
-
-#[test]
 fn test_usable_lints() {
     let lints = vec![
         Lint::new("should_assert_eq", "Deprecated", "abc", Some("Reason"), "module_name"),

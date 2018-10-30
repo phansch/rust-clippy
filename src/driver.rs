@@ -139,7 +139,7 @@ pub fn main() {
                     ls.register_early_pass(Some(sess), true, pass);
                 }
                 for pass in late_lint_passes {
-                    ls.register_late_pass(Some(sess), true, pass);
+                    // ls.register_late_pass(Some(sess), true, pass);
                 }
 
                 for (name, (to, deprecated_name)) in lint_groups {

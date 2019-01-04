@@ -640,7 +640,12 @@ pub fn span_lint_and_then<'a, 'tcx: 'a, T: LintContext<'tcx>, F>(
     F: for<'b> FnOnce(&mut DiagnosticBuilder<'b>),
 {
     let mut db = DiagnosticWrapper(cx.struct_span_lint(lint, sp, msg));
+    // let is_machine_applicable = db.0.suggestions.iter().map(|s| s.applicability).any(|a| a == Applicability::MachineApplicable);
+    // if is_machine_applicable {
+    //     db.0.note("is_machine_applicable");
+    // }
     f(&mut db.0);
+    // eprintln!("{{ 'name': '{:?}', 'applicability': {:?} }}'", lint.name, );
     db.docs_link(lint);
 }
 
@@ -685,6 +690,13 @@ pub fn span_lint_and_sugg<'a, 'tcx: 'a, T: LintContext<'tcx>>(
     sugg: String,
     applicability: Applicability,
 ) {
+    // eprintln!("{{ 'name': '{:?}', 'applicability': [{:?}] }}'", lint.name, applicability);
+
+    // let msg = if applicability == Applicability::MachineApplicable {
+    //     format!("is_machine_applicable, {}", msg)
+    // } else {
+    //     msg.to_string()
+    // };
     span_lint_and_then(cx, lint, sp, msg, |db| {
         db.span_suggestion_with_applicability(sp, help, sugg, applicability);
     });

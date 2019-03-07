@@ -279,6 +279,21 @@ pub fn get_trait_def_id(cx: &LateContext<'_, '_>, path: &[&str]) -> Option<DefId
     }
 }
 
+/// Get the `hir::TraitRef` of the trait the given method is implemented for
+///
+/// See https://doc.rust-lang.org/nightly/nightly-rustc/rustc/hir/struct.TraitRef.html
+pub fn trait_ref_of_method(cx: &LateContext<'_, '_>, hir_id: HirId) -> Option<TraitRef> {
+    // Get the implemented trait for the current function
+    let parent_impl = cx.tcx.hir().get_parent_item(hir_id);
+    if_chain! {
+        if parent_impl != hir::CRATE_HIR_ID;
+        if let hir::Node::Item(item) = cx.tcx.hir().get_by_hir_id(parent_impl);
+        if let hir::ItemKind::Impl(_, _, _, _, trait_ref, _, _) = &item.node;
+        then { return trait_ref.clone(); }
+    }
+    None
+}
+
 /// Check whether a type implements a trait.
 /// See also `get_trait_def_id`.
 pub fn implements_trait<'a, 'tcx>(

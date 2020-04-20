@@ -1,7 +1,7 @@
 use crate::utils::SpanlessEq;
 use crate::utils::{
-    is_expn_of, match_def_path, match_qpath, match_type, method_calls, paths, run_lints, snippet, span_lint,
-    span_lint_and_help, span_lint_and_sugg, walk_ptrs_ty,
+    is_expn_of, match_def_path, match_qpath, match_type, method_calls, paths, snippet, span_lint, span_lint_and_help,
+    span_lint_and_sugg, walk_ptrs_ty, last_path_segment, match_function_call
 };
 use if_chain::if_chain;
 use rustc_ast::ast::{Crate as AstCrate, ItemKind, LitKind, NodeId};
@@ -656,3 +656,76 @@ fn suggest_note(
         Applicability::MachineApplicable,
     );
 }
+
+declare_clippy_lint! {
+    /// **What it does:** Collects data about all our lints into a JSON file
+    ///
+    ///
+    ///
+    /// **Why is this bad?** TODO
+    ///
+    /// **Known problems:** None.
+    ///
+    /// **Example:** TODO
+    pub LINT_COLLECTOR,
+    // Don't want to run this as part of the dogfood tests, so separate lint group
+    internal_collector,
+    "not a lint. collects all lints into a JSON file"
+}
+
+declare_lint_pass!(ClippyLintCollector => [LINT_COLLECTOR]);
+
+impl<'a, 'tcx> LateLintPass<'a, 'tcx> for ClippyLintCollector {
+    fn check_expr(&mut self, cx: &LateContext<'a, 'tcx>, expr: &'tcx Expr<'_>) {
+        if_chain! {
+            if let Some(args) = match_function_call(cx, expr, &["clippy_lints", "utils", "diagnostics", "span_lint_and_sugg"]);
+            let (lint_name, applicability) = lint_of_diagnostic_emission(cx, args);
+
+            then {
+                // dbg!(&lint_name);
+                // dbg!(&applicability);
+
+                span_lint(cx, LINT_COLLECTOR, expr.span, &format!("here: span_lint_and_sugg"));
+            }
+        }
+    }
+}
+
+/// Iterate over the arguments of e.g. `span_lint_and_sugg` and find the lint
+fn lint_of_diagnostic_emission<'a, 'tcx>(
+    cx: &LateContext<'a, 'tcx>,
+    args: &[hir::Expr<'_>],
+) -> (Option<Symbol>, Option<Symbol>) {
+    let mut lint_name: Option<Symbol> = None;
+    let mut applicability: Option<Symbol> = None;
+    for arg in args {
+        let arg_ty = walk_ptrs_ty(cx.tables.expr_ty(&arg));
+
+        if match_type(cx, arg_ty, &paths::LINT) {
+            // If we found the lint arg, extract the lint name
+            if let ExprKind::Path(ref lint_path) = arg.kind {
+                lint_name = Some(last_path_segment(lint_path).ident.name)
+            }
+        }
+        if match_type(cx, arg_ty, &paths::APPLICABILITY) {
+            if let ExprKind::Path(ref path) = arg.kind {
+                // TODO: handle variables of Applicability
+                dbg!(&arg.kind);
+                dbg!(&arg_ty);
+                // dbg!(&path);
+                applicability = Some(last_path_segment(path).ident.name)
+            }
+        }
+    }
+    (lint_name, applicability)
+}
+// todo: re-use `declared_lints` somehow
+// - check for Applicability::MachineApplicable
+// - start with span_lint_and_sugg
+
+// first todo:
+// find span_lint_and_sugg calls with Applicability::MachineApplicable
+// and print the name of the lint
+
+// todo: `args[1]` is brittle. might be better to check each arg:
+// let lint_ty = cx.tables.expr_ty(&args[i]);

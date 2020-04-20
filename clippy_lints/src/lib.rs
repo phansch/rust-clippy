@@ -165,6 +165,11 @@ macro_rules! declare_clippy_lint {
             $(#[$attr])* pub clippy::$name, Warn, $description, report_in_external_macro: true
         }
     };
+    { $(#[$attr:meta])* pub $name:tt, internal_collector, $description:tt } => {
+        declare_tool_lint! {
+            $(#[$attr])* pub clippy::$name, Allow, $description, report_in_external_macro: true
+        }
+    };
 }
 
 mod consts;
@@ -855,6 +860,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
         &utils::internal_lints::LINT_WITHOUT_LINT_PASS,
         &utils::internal_lints::OUTER_EXPN_EXPN_DATA,
         &utils::internal_lints::PRODUCE_ICE,
+        &utils::internal_lints::LINT_COLLECTOR,
         &vec::USELESS_VEC,
         &vec_resize_to_zero::VEC_RESIZE_TO_ZERO,
         &verbose_file_reads::VERBOSE_FILE_READS,
@@ -878,6 +884,7 @@ pub fn register_plugins(store: &mut rustc_lint::LintStore, sess: &Session, conf:
     store.register_late_pass(|| box utils::internal_lints::CompilerLintFunctions::new());
     store.register_late_pass(|| box utils::internal_lints::LintWithoutLintPass::default());
     store.register_late_pass(|| box utils::internal_lints::OuterExpnDataPass);
+    store.register_late_pass(|| box utils::internal_lints::ClippyLintCollector);
     store.register_late_pass(|| box utils::inspector::DeepCodeInspector);
     store.register_late_pass(|| box utils::author::Author);
     let vec_box_size_threshold = conf.vec_box_size_threshold;

@@ -285,6 +285,7 @@ pub fn path_to_res(cx: &LateContext<'_, '_>, path: &[&str]) -> Option<def::Res> 
     }
 }
 
+/// A wrapper around `TypeckTables.qpath_res` that returns `Res::Err` instead of panicking
 pub fn qpath_res(cx: &LateContext<'_, '_>, qpath: &hir::QPath<'_>, id: hir::HirId) -> Res {
     match qpath {
         hir::QPath::Resolved(_, path) => path.res,

@@ -1,4 +1,9 @@
+// aux-build:macro_rules.rs
+
 #![allow(unused_variables)]
+
+#[macro_use]
+extern crate macro_rules;
 
 fn takes_an_immutable_reference(a: &i32) {}
 fn takes_a_mutable_reference(a: &mut i32) {}
@@ -40,4 +45,6 @@ fn main() {
     my_struct.takes_an_immutable_reference(&42);
     my_struct.takes_a_mutable_reference(&mut 42);
     my_struct.takes_an_immutable_reference(a);
+
+    unnecessary_mut_passed!();
 }

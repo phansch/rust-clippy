@@ -1,4 +1,9 @@
 // run-rustfix
+// aux-build:macro_rules.rs
+
+#[macro_use]
+extern crate macro_rules;
+
 pub fn foo(_const: *const f32, _mut: *mut i64) {}
 
 fn main() {
@@ -11,4 +16,6 @@ fn main() {
 
     let z = 0;
     let _ = z as *const usize; // this is currently not caught
+
+    zero_ptr!();
 }

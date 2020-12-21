@@ -94,3 +94,18 @@ macro_rules! large_enum_variant {
         }
     };
 }
+
+#[macro_export]
+macro_rules! zero_ptr {
+    () => {
+        let _ = 0 as *const usize;
+    };
+}
+
+#[macro_export]
+macro_rules! unnecessary_mut_passed {
+    () => {
+        fn takes_an_immutable_reference(a: &i32) {}
+        takes_an_immutable_reference(&mut 42);
+    };
+}
